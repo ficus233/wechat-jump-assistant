@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.pyc
+*.lock
+*.tmp
+*.log
+.env
+.env.*
+control/
+auto-center-state.json
+background-*.json
+control-result.json
+jump-measurements.*
+sessions/*/*
+!sessions/*/*-before.png
+!sessions/*/*-after.png
+!sessions/*/unrecognized-latest.png
+
+# Restored from regression-data.zip
+/sessions/
+/experiments/
+/evidence/
