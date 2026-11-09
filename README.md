@@ -1,47 +1,69 @@
-# Windows 微信跳一跳辅助程序
+# WeChat Jump Assistant for Windows
 
-Python 3.11+，OpenCV、NumPy、mss、PyAutoGUI。通过正常屏幕截图和鼠标长按操作 Windows 微信小程序，不使用 ADB、注入、客户端内存或网络修改。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-## 运行
+An open-source Python assistant for the Jump Jump (跳一跳) mini program in WeChat for Windows. It uses normal screen capture and mouse input to detect platforms, calibrate press duration, and automate jumps.
 
-1. 安装 Windows Python 3.11+，包含 pip 和 Tcl/Tk。
-2. 打开微信电脑版的跳一跳小程序。
-3. 双击 `start.bat` 打开控制面板；`background.bat` 直接后台运行，`debug.bat` 显示识别画布和手工标注界面。首次启动自动建立虚拟环境并安装依赖。
-4. F9 继续、F10 暂停、F7 退出后台。游戏需要获得前台焦点，输入异常会释放鼠标。
+## Features
 
-附带配置来自一台 Windows 11 实机：客户区 1077×1040 物理像素、DPI 120、画布 ROI `[520,250,550,700]`。启动会尝试恢复游戏客户区尺寸。其他布局或 DPI 需要重新框选、检查识别并校准；不能把本机参数当作通用物理常量。
+- Piece contact-point and platform-top detection with OpenCV.
+- White landing-marker centroid detection, shadow filtering, and textured-surface recovery.
+- Whole-platform grouping for Rubik-style tiles and striped-roof recognition.
+- Separate left/right calibration with camera-motion compensation and validated rolling linear models.
+- Edge-landing recovery, independent global hotkeys, a control panel, and screenshot debugging.
+- Per-jump timing, displacement records, and regression fixtures.
 
-## 已实现
+The assistant does not use ADB, client injection, memory access, network modification, or leaderboard manipulation.
 
-- 棋子脚底与平台顶面识别、白色落点质心、纹理平台恢复、阴影排除。
-- 魔方格子按完整平台合并、条纹屋顶恢复、边缘到达判定。
-- 左右方向独立校准、镜头平移补偿、滚动线性模型验证与平滑过渡。
-- 控制面板、独立全局热键、单步/连续调试、逐次输入与位移记录。
+## Requirements
 
-## 测试
+- Windows 11 and Python 3.11 or later, including pip and Tcl/Tk.
+- WeChat for Windows with the Jump Jump mini program open.
+- Dependencies listed in [requirements.txt](requirements.txt): OpenCV, NumPy, mss, PyAutoGUI, and Pillow.
 
-在 Windows 项目目录执行：
+## Quick Start
+
+1. Install Python and open the game in WeChat.
+2. Double-click `start.bat` to open the control panel. The launcher creates a virtual environment and installs dependencies on first use.
+3. Use `background.bat` for background operation, or `debug.bat` for the annotated screenshot and calibration interface.
+4. Press **F9** to resume, **F10** to pause, and **F7** to exit the background worker.
+
+The game must receive foreground input. Exceptions and cancellation release the mouse button.
+
+The bundled configuration was measured on one Windows 11 setup: a **1077 × 1040 physical-pixel client area**, **120 DPI**, and canvas ROI `[520, 250, 550, 700]`. Startup attempts to restore the measured client size. For other layouts or DPI settings, reselect the canvas, inspect detection, and recalibrate. These values are not universal game physics.
+
+## Tests
+
+Run from the project directory on Windows:
 
 ```powershell
 python -m pip install -r requirements.txt
 python -m unittest discover -v
 ```
 
-运行测试时自动解压 `regression-data.zip` 中的回归画面和证据，也可先执行 `python prepare_fixtures.py`。
+The test suite contains **64 tests**, including real failure-frame replay, mirrored directions, 3,200 simulated calibration updates, timing, and cancellation. Test discovery restores the fixtures and reports from `regression-data.zip` automatically. You can also restore them with `python prepare_fixtures.py`.
 
-64项测试，包含实际失败帧、镜像方向、3200次校准更新模拟、计时与取消路径。`sessions/` 和 `experiments/` 仅保留测试需要的画布裁剪，没有完整运行历史。测试会模拟输入或回放图片，不自动开始游戏。
+Tests mock input or replay saved images; they do not start a live game. The regression bundle contains only the canvas crops needed by the tests and compact reports, rather than the complete runtime history.
 
-截图识别、鼠标发出、可靠落地配准和中心加分命中是不同指标。项目经过多轮实机调试，仍有未覆盖外观和配准失败，不能保证连续游戏不结束，也未完成所有3000分以上场景验收。
+## Validation Status
 
-## 实验记录
+This is an experimental assistant tested through multiple live Windows sessions. Screenshot detection, mouse dispatch, registered landings, and center-bonus hits are separate outcomes. Uncovered platform appearances and camera-registration failures remain possible. Uninterrupted play and reliable performance in every game above 3,000 points have not been established.
 
-- [机制研究与参考版本](研究记录.md)
-- [中心加分点精度](中心加分点精度优化.md)
-- [阴影排除](阴影排除修复.md)
-- [长时间运行稳定性](长时间运行稳定性修复.md)
-- [边缘落地修复](边缘落地卡住修复.md)
-- [魔方与自动像素校准](魔方平台与自动像素校准.md)
+## Research and Development Notes
 
-专题文档保存各轮实验背景，部分早期界面流程与当前默认后台入口不同，以此页运行方式为准。`evidence/` 保留精简数值及测试记录；完整历史只留在原始本地项目中。
+The detailed notes below are currently in Chinese:
 
-源码为独立实现，参考仓库版本和许可调查见研究记录。没有复制无许可仓库的素材或源码。本仓库尚未指定开源许可证。
+- [Reference implementations and pinned revisions](研究记录.md)
+- [Center-target precision](中心加分点精度优化.md)
+- [Shadow filtering](阴影排除修复.md)
+- [Long-running calibration stability](长时间运行稳定性修复.md)
+- [Edge-landing recovery](边缘落地卡住修复.md)
+- [Tile grouping and pixel calibration](魔方平台与自动像素校准.md)
+
+Historical notes describe earlier interfaces as well as later fixes. Follow this README for the current launch procedure. Run `python prepare_fixtures.py` to restore the referenced `evidence/` reports.
+
+## License
+
+The original source code is licensed under the [MIT License](LICENSE). Third-party game imagery in regression screenshots remains the property of its respective rights holders and is not relicensed by this project. Reference projects and their investigated licenses are recorded in the research notes; their code and asset collections are not bundled.
+
+This independent project is not affiliated with or endorsed by Tencent or WeChat.
